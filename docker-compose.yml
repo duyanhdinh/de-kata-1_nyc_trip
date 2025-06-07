@@ -1,0 +1,89 @@
+version: '3'
+x-airflow-common:
+  &airflow-common
+  build:
+    context: ./airflow_config
+    dockerfile: Dockerfile
+  environment:
+    &airflow-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__FERNET_KEY: ''
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+    AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    AIRFLOW__WEBSERVER__SECRET_KEY: 'secret'
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
+    AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
+    _PIP_ADDITIONAL_REQUIREMENTS: ''
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./share_data:/opt/airflow/share_data
+    - ./scripts:/opt/airflow/scripts
+    - ./logs:/opt/airflow/logs
+    - ./plugins:/opt/airflow/plugins
+  depends_on:
+    - postgres
+    - dwh
+  networks:
+    dwh_net:
+
+services:
+  dwh:
+    image: postgres:latest
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: dwh
+      POSTGRES_PASSWORD: dwh
+      POSTGRES_DB: dwh
+    ports:
+      - "5555:5432"
+    volumes:
+      - dwh-db-volume:/var/lib/postgresql/data
+    networks:
+      dwh_net:
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    ports:
+      - "5550:5432"
+    volumes:
+      - airflow-db-volume:/var/lib/postgresql/data
+    networks:
+      dwh_net:
+
+  airflow-webserver:
+    <<: *airflow-common
+    ports:
+      - "8081:8080"
+    command: webserver
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 10s
+      retries: 2
+      start_period: 10s
+      timeout: 10s
+
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+
+  airflow-init:
+    <<: *airflow-common
+    command: bash -c "airflow db migrate && airflow users create \
+      --username admin \
+      --password admin \
+      --firstname Admin \
+      --lastname User \
+      --role Admin \
+      --email admin@example.com"
+    restart: on-failure
+
+volumes:
+  airflow-db-volume:
+  dwh-db-volume:
+
+networks:
+  dwh_net:

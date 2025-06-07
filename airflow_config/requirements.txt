@@ -1,0 +1,5 @@
+pandas
+pyarrow
+requests
+polars
+psycopg2-binary
