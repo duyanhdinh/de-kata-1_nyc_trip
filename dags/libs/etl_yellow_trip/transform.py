@@ -1,13 +1,14 @@
 import pandas as pd
 
 from libs.pandas.transform import tf_text_null_to_none, tf_datetime_to_date_time
-from libs.utils.common import get_all_file_in_folder, path_create_folder
+from libs.utils.common import get_all_file_in_folder, path_create_folder, add_col_to_parquet_if_not_exist
 from libs.etl_yellow_trip.constant import YELLOW_TRIP_DATA_RAW, YELLOW_TRIP_DATA_STG, COLUMN_RENAME_MAP
 
 
 def clean_data(data):
     tf_text_null_to_none(data)
 
+    add_col_to_parquet_if_not_exist(data, 'cbd_congestion_fee', 'float64')
     tf_datetime_to_date_time(data, "tpep_pickup_datetime", True)
     tf_datetime_to_date_time(data, "tpep_dropoff_datetime", True)
     data.drop(columns=['tpep_pickup_datetime', 'tpep_dropoff_datetime'], inplace=True)

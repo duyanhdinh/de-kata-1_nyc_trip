@@ -26,3 +26,8 @@ def load_file_list_from_txt(file_path):
 
     with open(file_path, "r", encoding="utf-8") as f:
         return [line.strip() for line in f.readlines()]
+
+def add_col_to_parquet_if_not_exist(df, col_name, col_type, default_value=None):
+    if col_name not in df.columns:
+        df[col_name] = default_value
+        df[col_name] = df[col_name].astype(col_type)
