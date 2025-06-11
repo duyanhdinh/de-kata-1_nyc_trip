@@ -2,8 +2,11 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-from libs.etl.transform.yellow_trip import transform_yellow_trip
-from libs.ingest.yellow_trip import ingest_yellow_trip
+from libs.etl_yellow_trip.clean import yellow_trip_clean
+from libs.etl_yellow_trip.load import yellow_trip_load
+from libs.etl_yellow_trip.create_table import yellow_trip_create_table
+from libs.etl_yellow_trip.transform import yellow_trip_transform
+from libs.etl_yellow_trip.ingest import yellow_trip_ingest
 
 default_args = {
     'owner': 'airflow',
@@ -19,14 +22,29 @@ with DAG(
     catchup=False
 ) as dag:
 
-    t1 = PythonOperator(
+    ingest = PythonOperator(
         task_id='extract',
-        python_callable=ingest_yellow_trip
+        python_callable=yellow_trip_ingest
     )
 
-    t2 = PythonOperator(
+    transform = PythonOperator(
         task_id='transform',
-        python_callable=transform_yellow_trip
+        python_callable=yellow_trip_transform
     )
 
-    t1 >> t2   # Define task dependency
+    create_table = PythonOperator(
+        task_id='create_table',
+        python_callable=yellow_trip_create_table
+    )
+
+    load = PythonOperator(
+        task_id='load',
+        python_callable=yellow_trip_load
+    )
+
+    clean = PythonOperator(
+        task_id='clean',
+        python_callable=yellow_trip_clean
+    )
+
+    ingest >> transform >> create_table >> load >> clean

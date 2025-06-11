@@ -1,5 +1,8 @@
 pandas
 pyarrow
-requests
-polars
 psycopg2-binary
+sqlalchemy
+virtualenv
+duckdb
+duckdb-engine
+pathlib
