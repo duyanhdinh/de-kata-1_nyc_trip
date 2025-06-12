@@ -20,3 +20,7 @@ This is a learn E(T)LT pipeline project for learning core Data Engineering conce
 
 3. **Schedule**:  
    Airflow orchestrates the EL and T steps as DAGs.
+
+---
+
+💡 This project was made possible with guidance and suggestions from ChatGPT, as part of my self-learning journey in Data Engineering.
