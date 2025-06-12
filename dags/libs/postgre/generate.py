@@ -1,7 +1,7 @@
 import pandas as pd
-import psycopg2
+from libs.etl_yellow_trip.constant import DWH_YELLOW_TRIP_SCHEMA
 
-# Ánh xạ kiểu dữ liệu Pandas → PostgreSQL
+
 def map_dtype(dtype):
     if pd.api.types.is_integer_dtype(dtype):
         if dtype == "int64":
@@ -30,7 +30,9 @@ def parquet_to_sql(df):
 def generate_create_table_sql(df, tb_name, added_schema=''):
     schema = parquet_to_sql(df)
 
-    return f"""CREATE TABLE IF NOT EXISTS {tb_name} (
+    return f"""
+    CREATE SCHEMA IF NOT EXISTS {DWH_YELLOW_TRIP_SCHEMA};
+    CREATE TABLE IF NOT EXISTS {DWH_YELLOW_TRIP_SCHEMA}.{tb_name} (
         {added_schema}
         {schema}
     );"""
