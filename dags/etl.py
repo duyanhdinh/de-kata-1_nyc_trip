@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 from airflow import DAG
-from airflow.operators.python import PythonOperator
+from airflow.operators.python import PythonOperator, ShortCircuitOperator
 
 from libs.etl_yellow_trip.clean import yellow_trip_clean
 from libs.etl_yellow_trip.load import yellow_trip_load
 from libs.etl_yellow_trip.create_table import yellow_trip_create_table
-from libs.etl_yellow_trip.transform import yellow_trip_transform
+from libs.etl_yellow_trip.transform import yellow_trip_transform, yellow_trip_has_new_data
 from libs.etl_yellow_trip.ingest import yellow_trip_ingest
 
 default_args = {
@@ -32,6 +32,11 @@ with DAG(
         python_callable=yellow_trip_transform
     )
 
+    check_for_new_data = ShortCircuitOperator(
+        task_id='check_for_new_data',
+        python_callable=yellow_trip_has_new_data
+    )
+
     create_table = PythonOperator(
         task_id='create_table',
         python_callable=yellow_trip_create_table
@@ -47,4 +52,4 @@ with DAG(
         python_callable=yellow_trip_clean
     )
 
-    ingest >> transform >> create_table >> load >> clean
+    ingest >> transform >> check_for_new_data >> create_table >> load >> clean

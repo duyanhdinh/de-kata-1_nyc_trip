@@ -30,3 +30,6 @@ def yellow_trip_transform():
             clean_data(data)
 
             data.to_parquet(f"{ YELLOW_TRIP_DATA_STG }/{ file_name }", engine='pyarrow', compression='snappy')
+
+def yellow_trip_has_new_data():
+    return get_all_file_in_folder(YELLOW_TRIP_DATA_STG)
