@@ -1,0 +1,10 @@
+version: 2
+
+sources:
+  - name: "{{ env_var('DWH_SCHEMA') }}"
+    tables:
+      - name: yellow_trips
+
+models:
+  - name: stg_yellow_taxis
+    description: "Staging model for Yellow Taxi trips"

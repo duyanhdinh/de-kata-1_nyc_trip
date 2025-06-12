@@ -1,0 +1,69 @@
+erDiagram
+    fact_yellow_trips {
+        int id
+        int vendor_id
+        float passenger_count
+        float trip_distance
+        float rate_code_id
+        string store_and_fwd_flag
+        int pu_location_id
+        int do_location_id
+        bigint payment_type
+        float fare_amount
+        float extra
+        float mta_tax
+        float tip_amount
+        float tolls_amount
+        float improvement_surcharge
+        float total_amount
+        float congestion_surcharge
+        float airport_fee
+        float cbd_congestion_fee
+        string tpep_pickup_datetime_date
+        string tpep_pickup_datetime_time
+        string tpep_dropoff_datetime_date
+        string tpep_dropoff_datetime_time
+    }
+    dim_date {
+        string id
+        string year
+        string month
+        string day
+        string day_name
+        string day_of_week
+        string day_of_year
+        string full_date
+    }
+    dim_time {
+        string id
+        string hour
+        string min
+    }
+    dim_vendor {
+        int id
+        string name
+    }
+    dim_rate_code {
+        int id
+        string name
+    }
+    dim_location {
+        int id
+        string Borough
+        string Zone
+        string service_zone
+    }
+    dim_payment_type {
+        int id
+        string type
+    }
+
+    fact_yellow_trips }o--|| dim_date : pickup_date
+    fact_yellow_trips }o--|| dim_date : dropoff_date
+    fact_yellow_trips }o--|| dim_time : pickup_time
+    fact_yellow_trips }o--|| dim_time : dropoff_time
+    fact_yellow_trips }o--|| dim_vendor : has
+    fact_yellow_trips }o--|| dim_rate_code : has
+    fact_yellow_trips }o--|| dim_location : pickup_location
+    fact_yellow_trips }o--|| dim_location : dropoff_location
+    fact_yellow_trips }o--|| dim_payment_type : has

@@ -1,0 +1,27 @@
+name: tlc_trip
+version: '1.0'
+
+config-version: 2
+
+profile: tlc_trip
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+analysis-paths: ["analysis"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_modules"]
+
+models:
+  tlc_trip:
+    +schema: "{{ env_var('DBT_SCHEMA') }}"
+    materialized: table
+    staging:
+      materialized: view
+
+seeds:
+  tlc_trip:
+    +schema: staging

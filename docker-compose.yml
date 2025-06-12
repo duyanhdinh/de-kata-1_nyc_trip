@@ -1,11 +1,20 @@
 version: '3'
+x-airflow-env:
+  &airflow-env
+  DWH_HOST: 'dwh_postgres'
+  DWH_PORT: 5432
+  DWH_DBNAME: dwh
+  DWH_USER: dwh
+  DWH_PASSWORD: dwh
+  DWH_SCHEMA: dwh
+  DBT_PROFILES_DIR: /usr/app
+  DBT_SCHEMA: analytics
 x-airflow-common:
   &airflow-common
   build:
     context: ./airflow_config
     dockerfile: Dockerfile
   environment:
-    &airflow-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
@@ -14,25 +23,22 @@ x-airflow-common:
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
     _PIP_ADDITIONAL_REQUIREMENTS: ''
-    DWH_HOST: 'dwh_postgres'
-    DWH_PORT: 5432
-    DWH_DBNAME: dwh
-    DWH_USER: dwh
-    DWH_PASSWORD: dwh
+    <<: *airflow-env
   volumes:
     - ./dags:/opt/airflow/dags
     - ./share_data:/opt/airflow/share_data
     - ./scripts:/opt/airflow/scripts
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
+    - ./dbt:/usr/app
   depends_on:
     - postgres
-    - dwh
+    - dwh_postgres
   networks:
     dwh_net:
 
 services:
-  dwh:
+  dwh_postgres:
     image: postgres:latest
     container_name: dwh_postgres
     restart: unless-stopped
