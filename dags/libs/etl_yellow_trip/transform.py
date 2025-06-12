@@ -9,6 +9,8 @@ def clean_data(data):
     tf_text_null_to_none(data)
 
     add_col_to_parquet_if_not_exist(data, 'cbd_congestion_fee', 'float64')
+    add_col_to_parquet_if_not_exist(data, 'improvement_surcharge', 'float64')
+
     tf_datetime_to_date_time(data, "tpep_pickup_datetime", True)
     tf_datetime_to_date_time(data, "tpep_dropoff_datetime", True)
     data.drop(columns=['tpep_pickup_datetime', 'tpep_dropoff_datetime'], inplace=True)
